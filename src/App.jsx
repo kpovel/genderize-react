@@ -1,8 +1,20 @@
 import './App.css';
 import React from "react";
 
-function TextInput(props) {
-  return <input value={props.this.state.value} onChange={props.this.handleChange} type="text" autoFocus={true}/>
+class TextInput extends React.Component {
+  constructor(props) {
+    super(props);
+    this.handleChange = this.handleChange.bind(this);
+  }
+  
+  handleChange(e){
+    this.props.onHandleChange(e.target.value)
+  }
+  
+  render() {
+    const firstName = this.props.firstName
+    return <input value={firstName} onChange={this.handleChange} type="text" autoFocus={true}/>
+  }
 }
 
 function Button() {
@@ -16,31 +28,30 @@ function Result(props) {
 class Main extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {value: '', result: ''};
+    this.state = {firstName: '', result: ''};
     
-    this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.changeValue = this.changeValue.bind(this)
   }
   
-  handleChange(event) {
-    this.setState( {
-      value: event.target.value
+  changeValue(firstName){
+    this.setState({
+      firstName: firstName
     })
   }
   
   async handleSubmit(e) {
     e.preventDefault();
     this.setState({
-      value: ''
+      firstName: ''
     })
     
     const SERVER_URL = 'https://api.genderize.io';
-    const firstName = this.state.value;
+    const firstName = this.state.firstName;
     const url = `${SERVER_URL}?name=${firstName}`;
     
     const response = await fetch(url);
     const result = await response.json();
-    
     this.showResult(result);
   }
   
@@ -56,13 +67,15 @@ class Main extends React.Component {
   }
   
   render() {
+    const firstName = this.state.firstName;
+    const result = this.state.result;
     return (
      <div>
        <form onSubmit={this.handleSubmit}>
-         <TextInput this={this}/>
+         <TextInput firstName={firstName} onHandleChange={this.changeValue}/>
          <Button/>
        </form>
-       <Result result={this.state.result}/>
+       <Result result={result}/>
      </div>
     )
   }
